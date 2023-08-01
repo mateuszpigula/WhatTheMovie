@@ -1,9 +1,10 @@
 import { clsxm } from "@/utils/clsxm";
 import { ClassValue } from "clsx";
+import { ChatMessage } from "../../chat.interface";
 
 interface Props {
   children: React.ReactNode;
-  type: "user" | "bot";
+  from: ChatMessage["from"];
   cancelBorderTop?: boolean;
   cancelBorderBottom?: boolean;
   className?: ClassValue;
@@ -11,7 +12,7 @@ interface Props {
 
 export const Message = ({
   children,
-  type,
+  from,
   cancelBorderTop = false,
   cancelBorderBottom = false,
   className,
@@ -23,8 +24,8 @@ export const Message = ({
         {
           "rounded-tl-none": cancelBorderTop,
           "rounded-bl-none": cancelBorderBottom,
-          "bg-zinc-200": type === "user",
-          "ml-auto": type === "user",
+          "bg-zinc-200": from === "user",
+          "ml-auto": from === "user",
         },
         className,
       )}

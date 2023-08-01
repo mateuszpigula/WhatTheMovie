@@ -6,15 +6,15 @@ import { getMovieDetails, parseMovies } from "./movies.service";
 import { Button } from "@/components/Button/Button";
 import { Message } from "./components/Message/Message";
 import { clsxm } from "@/utils/clsxm";
-import { ChatMessage } from "./chat.interface";
 import { Input } from "@/components/Input/Input";
 import { useMessages } from "./useMessages";
+import { ImagesMessage } from "./components/ImagesMessage/ImagesMessage";
 
 export default function Chat() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomElRef = useRef<HTMLDivElement>(null);
-  const { messages, addUserMessage, addBotMessage } = useMessages();
+  const { messages, addUserMessage, addImagesMessage } = useMessages();
 
   async function askChat(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,10 +29,13 @@ export default function Chat() {
       const moviesDetails = await Promise.all(movies.map((movie) => getMovieDetails(movie)));
 
       // TODO: remove this timeout
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      moviesDetails.forEach((movie) => {
-        addBotMessage(movie.title);
-      });
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // TODO: add placeholder image
+      const images = moviesDetails.map((movie) => ({
+        src: movie.poster || "placeholder",
+        alt: movie.title,
+      }));
+      addImagesMessage(images, "bot");
     } catch (e) {
       // TODO: handle error with toast
       console.error(e);
@@ -56,17 +59,21 @@ export default function Chat() {
           const prevMsg = messages[index - 1];
           const nextMsg = messages[index + 1];
 
+          if (message.type === "image") {
+            return <ImagesMessage key={message.id} message={message} from={message.from} />;
+          }
+
           return (
             <Message
-              key={index}
-              type={message.type}
-              cancelBorderTop={prevMsg?.type === message.type}
-              cancelBorderBottom={nextMsg?.type === message.type}
+              key={message.id}
+              from={message.from}
+              cancelBorderTop={prevMsg?.from === message.from}
+              cancelBorderBottom={nextMsg?.from === message.from}
               className={clsxm({
-                "mb-6": nextMsg && nextMsg.type !== message.type,
+                "mb-6": nextMsg && nextMsg.from !== message.from,
               })}
             >
-              {message.text}
+              {message.content}
             </Message>
           );
         })}
@@ -76,7 +83,7 @@ export default function Chat() {
 
         {/* TODO: Add animation to loading */}
         {loading && (
-          <Message type="bot" className="mt-6">
+          <Message from="bot" className="mt-6">
             Loading...
           </Message>
         )}
