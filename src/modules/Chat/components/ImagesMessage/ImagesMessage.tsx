@@ -25,16 +25,10 @@ export const ImagesMessage = ({ message, from, className }: Props) => {
             )}
             style={{
               width: `calc((100vw - 2rem) / ${message.images.length} - 1rem)`,
+              aspectRatio: 7 / 10,
             }}
           >
-            <img
-              src={image.src}
-              alt={image.alt}
-              className="object-cover"
-              style={{
-                aspectRatio: 3 / 5,
-              }}
-            />
+            <img src={image.src} alt={image.alt} className="object-cover h-full w-full" />
           </li>
         );
       })}
