@@ -1,54 +1,24 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
-import { completion } from "./openai.service";
-import { getMovieDetails, parseMovies } from "./movies.service";
+import { useEffect, useRef } from "react";
+
 import { Button } from "@/components/Button/Button";
 import { Message } from "./components/Message/Message";
 import { clsxm } from "@/utils/clsxm";
 import { Input } from "@/components/Input/Input";
-import { useMessages } from "./useMessages";
 import { ImagesMessage } from "./components/ImagesMessage/ImagesMessage";
+import { useChat } from "./useChat";
 
 export default function Chat() {
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
   const bottomElRef = useRef<HTMLDivElement>(null);
-  const { messages, addUserMessage, addImagesMessage } = useMessages();
-
-  async function askChat(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const message = (e.currentTarget.elements.namedItem("message") as HTMLInputElement).value;
-    setInput("");
-    addUserMessage(message);
-    setLoading(true);
-
-    try {
-      const openAiResponse = await completion(message);
-      const movies = parseMovies(openAiResponse);
-      const moviesDetails = await Promise.all(movies.map((movie) => getMovieDetails(movie)));
-
-      // TODO: remove this timeout
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      // TODO: add placeholder image
-      const images = moviesDetails.map((movie) => ({
-        src: movie.poster || "placeholder",
-        alt: movie.title,
-      }));
-      addImagesMessage(images, "bot");
-    } catch (e) {
-      // TODO: handle error with toast
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const { chatState, messages, askChat, resetChat, handleInputChange, handleSuccessfulResults } =
+    useChat();
 
   useEffect(() => {
     if (bottomElRef.current) {
       bottomElRef?.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, loading]);
+  }, [messages, chatState]);
 
   return (
     <div>
@@ -82,7 +52,7 @@ export default function Chat() {
         {/* <Button className="w-3/4 mb-6">Set Filters</Button> */}
 
         {/* TODO: Add animation to loading */}
-        {loading && (
+        {chatState.loading && (
           <Message from="bot" className="mt-6">
             Loading...
           </Message>
@@ -90,16 +60,33 @@ export default function Chat() {
 
         <div ref={bottomElRef} aria-hidden />
         <div className="fixed bottom-0 w-full p-3 flex justify-center left-0 bg-zinc-100">
-          <Input
-            placeholder="What movie are you looking for?"
-            className="w-full"
-            name="message"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-          />
+          {chatState.resultsReceived && (
+            <>
+              <Button className="text-sm" onClick={resetChat}>
+                Try again
+              </Button>
+              <Button className="text-sm" onClick={handleSuccessfulResults}>
+                Successful results!
+              </Button>
+            </>
+          )}
 
-          {/* TODO: Change footer state after submit */}
-          {/* <Button type="submit">Submit</Button> */}
+          {!chatState.resultsReceived && (
+            <>
+              <Input
+                placeholder="What movie are you looking for?"
+                className="w-full"
+                name="message"
+                value={chatState.input}
+                onChange={(e) => handleInputChange(e.target.value)}
+                autoFocus
+              />
+
+              <Button type="submit" className="hidden sm:block" disabled={chatState.loading}>
+                Submit
+              </Button>
+            </>
+          )}
         </div>
       </form>
     </div>
