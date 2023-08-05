@@ -16,7 +16,7 @@ export const ImagesMessage = ({ message, from, className }: Props) => {
           <li
             key={image.src}
             className={clsxm(
-              "p-3 bg-zinc-100 rounded-xl min-w-[140px] max-w-[200px] mb-1 last:mb-4 flex-shrink-0",
+              "p-1 bg-zinc-100 rounded-xl min-w-[140px] max-w-[200px] mb-10 flex-shrink-0 relative",
               {
                 "bg-zinc-200": from === "user",
                 "ml-auto": from === "user",
@@ -28,7 +28,14 @@ export const ImagesMessage = ({ message, from, className }: Props) => {
               aspectRatio: 7 / 10,
             }}
           >
-            <img src={image.src} alt={image.alt} className="object-cover h-full w-full" />
+            <img
+              src={image.src}
+              alt={image.alt}
+              className="object-cover h-full w-full rounded-xl"
+            />
+            <span className="absolute top-full w-full text-center left-0 italic pt-0.5">
+              {image.alt}
+            </span>
           </li>
         );
       })}
