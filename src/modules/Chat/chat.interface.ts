@@ -2,6 +2,7 @@ interface ChatMessageBasic {
   id: string;
   from: "bot" | "user";
   type?: "text" | "image";
+  meta?: string;
 }
 
 interface ChatMessageText extends ChatMessageBasic {

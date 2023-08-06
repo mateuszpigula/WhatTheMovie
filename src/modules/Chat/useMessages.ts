@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
 import { ChatMessage, ChatMessageImages } from "./chat.interface";
+import { DistributiveOmit } from "@/types";
 
 const initialMessages: ChatMessage[] = [
   {
@@ -30,40 +31,39 @@ const initialMessages: ChatMessage[] = [
 export const useMessages = () => {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
 
-  const addUserMessage = (message: string) => {
+  const addMessage = (messageData: DistributiveOmit<ChatMessage, "id">) => {
     setMessages((prev) => [
       ...prev,
       {
         id: uuidv4(),
-        type: "text",
-        from: "user",
-        content: message,
+        ...messageData,
       },
     ]);
+  };
+
+  const addUserMessage = (message: string, meta?: ChatMessage["meta"]) => {
+    addMessage({
+      type: "text",
+      from: "user",
+      content: message,
+      meta,
+    });
   };
 
   const addBotMessage = (message: string) => {
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: uuidv4(),
-        from: "bot",
-        content: message,
-        type: "text",
-      },
-    ]);
+    addMessage({
+      type: "text",
+      from: "bot",
+      content: message,
+    });
   };
 
   const addImagesMessage = (images: ChatMessageImages["images"], from: ChatMessage["from"]) => {
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: uuidv4(),
-        from,
-        type: "image",
-        images,
-      },
-    ]);
+    addMessage({
+      type: "image",
+      from,
+      images,
+    });
   };
 
   return {

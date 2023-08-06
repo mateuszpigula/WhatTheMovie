@@ -2,6 +2,8 @@ import { useState, FormEvent } from "react";
 import { useMessages } from "./useMessages";
 import { completion } from "./openai.service";
 import { getMovieDetails, parseMovies } from "./movies.service";
+import { useMessageFilters } from "@/contexts/MessageFilters/MessageFilters";
+
 export const useChat = () => {
   const [chatState, setChatState] = useState({
     loading: false,
@@ -10,6 +12,7 @@ export const useChat = () => {
   });
 
   const { messages, addBotMessage, addUserMessage, addImagesMessage } = useMessages();
+  const { filtersToText } = useMessageFilters();
 
   async function askChat(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,7 +20,7 @@ export const useChat = () => {
     if (!message) return;
 
     setChatState((state) => ({ ...state, loading: true, input: "" }));
-    addUserMessage(message);
+    addUserMessage(message, filtersToText);
 
     try {
       const openAiResponse = await completion(message);

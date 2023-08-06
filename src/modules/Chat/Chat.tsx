@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
 import { Button } from "@/components/Button/Button";
 import { Message } from "./components/Message/Message";
 import { clsxm } from "@/utils/clsxm";
 import { Input } from "@/components/Input/Input";
 import { ImagesMessage } from "./components/ImagesMessage/ImagesMessage";
 import { useChat } from "./useChat";
+import { Icon } from "@/components/Icon/Icon";
 
 export default function Chat() {
   const bottomElRef = useRef<HTMLDivElement>(null);
@@ -22,7 +22,7 @@ export default function Chat() {
 
   return (
     <div>
-      <div className="w-full h-20 bg-zinc-100 fixed left-0 top-0" />
+      <div className="w-full h-20 bg-zinc-100 fixed left-0 top-0 z-10" />
 
       <form onSubmit={askChat} className="flex flex-col px-4 pt-24 pb-20">
         {messages.map((message, index) => {
@@ -42,6 +42,7 @@ export default function Chat() {
               className={clsxm({
                 "mb-6": nextMsg && nextMsg.from !== message.from,
               })}
+              meta={message.meta}
             >
               {message.content}
             </Message>
@@ -59,7 +60,7 @@ export default function Chat() {
         )}
 
         <div ref={bottomElRef} aria-hidden />
-        <div className="fixed bottom-0 w-full p-3 flex justify-center left-0 bg-zinc-100">
+        <div className="fixed bottom-0 w-full p-3 flex justify-center items-center left-0 bg-zinc-100 gap-4">
           {chatState.resultsReceived && (
             <>
               <Button className="text-sm" onClick={resetChat}>
@@ -85,6 +86,7 @@ export default function Chat() {
               <Button type="submit" className="hidden sm:block" disabled={chatState.loading}>
                 Submit
               </Button>
+              <Icon icon="filters" size="lg" onClick={console.log} role="button" />
             </>
           )}
         </div>
